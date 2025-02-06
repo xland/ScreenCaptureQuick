@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <qquickitem.h>
 #include <QScreen>
 #include <QQuickWindow>
 #include <Windows.h>
@@ -18,6 +19,9 @@ int main(int argc, char *argv[])
         return -1;
     }
     QQuickWindow* window = qobject_cast<QQuickWindow*>(engine.rootObjects().first());
+    window->setScreen(QGuiApplication::primaryScreen());
+
+    auto dpr = window->devicePixelRatio();
     if (window) {
         window->setFlags(window->flags() | Qt::FramelessWindowHint);
         auto hwnd = (HWND)window->winId();
@@ -25,13 +29,10 @@ int main(int argc, char *argv[])
         auto y = GetSystemMetrics(SM_YVIRTUALSCREEN);
         auto w = GetSystemMetrics(SM_CXVIRTUALSCREEN);
         auto h = GetSystemMetrics(SM_CYVIRTUALSCREEN);
-        SetWindowPos(
-            hwnd,               // 窗口句柄
-            HWND_TOP,           // 保持窗口在顶部
-            x, y,               // 新位置的 X 和 Y 坐标
-            w, h,      // 新宽度和高度
-            SWP_NOZORDER        // 保持窗口的 Z 顺序不变
-        );
+        SetWindowPos(hwnd,  HWND_TOP,   
+            x, y,       
+            w, h,       
+            SWP_NOZORDER );
     }
     return app.exec();
 }
